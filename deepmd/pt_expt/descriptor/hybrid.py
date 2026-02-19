@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 
-from deepmd.dpmodel.descriptor.se_e2_a import DescrptSeA as DescrptSeADP
+from deepmd.dpmodel.descriptor.hybrid import DescrptHybrid as DescrptHybridDP
 from deepmd.pt_expt.common import (
     torch_module,
 )
@@ -9,8 +9,7 @@ from deepmd.pt_expt.descriptor.base_descriptor import (
 )
 
 
-@BaseDescriptor.register("se_e2_a")
-@BaseDescriptor.register("se_a")
+@BaseDescriptor.register("hybrid")
 @torch_module
-class DescrptSeA(DescrptSeADP):
+class DescrptHybrid(DescrptHybridDP):
     pass

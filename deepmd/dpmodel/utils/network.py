@@ -60,7 +60,7 @@ class Identity(NativeOP):
 
     @classmethod
     def deserialize(cls, data: dict) -> "Identity":
-        return Identity()
+        return cls()
 
 
 class NativeLayer(NativeOP):
@@ -1265,11 +1265,14 @@ def aggregate(  # noqa: ANN201
     bin_count = xp_bincount(owners)
     bin_count = xp.where(bin_count == 0, xp.ones_like(bin_count), bin_count)
 
+    dev = array_api_compat.device(data)
     if num_owner is not None and bin_count.shape[0] != num_owner:
         difference = num_owner - bin_count.shape[0]
-        bin_count = xp.concat([bin_count, xp.ones(difference, dtype=bin_count.dtype)])
+        bin_count = xp.concat(
+            [bin_count, xp.ones(difference, dtype=bin_count.dtype, device=dev)]
+        )
 
-    output = xp.zeros((bin_count.shape[0], data.shape[1]), dtype=data.dtype)
+    output = xp.zeros((bin_count.shape[0], data.shape[1]), dtype=data.dtype, device=dev)
     output = xp_add_at(output, owners, data)
 
     if average:
@@ -1332,7 +1335,8 @@ def get_graph_index(  # noqa: ANN201
 
     # 1. atom graph
     # node(i) to edge(ij) index_select; edge(ij) to node aggregate
-    nlist_loc_index = xp.arange(nf * nloc, dtype=nlist.dtype)
+    dev = array_api_compat.device(nlist)
+    nlist_loc_index = xp.arange(nf * nloc, dtype=nlist.dtype, device=dev)
     # nf x nloc x nnei
     n2e_index = xp.broadcast_to(
         xp.reshape(nlist_loc_index, (nf, nloc, 1)), (nf, nloc, nnei)
@@ -1341,7 +1345,7 @@ def get_graph_index(  # noqa: ANN201
     n2e_index = n2e_index[xp.astype(nlist_mask, xp.bool)]
 
     # node_ext(j) to edge(ij) index_select
-    frame_shift = xp.arange(nf, dtype=nlist.dtype) * (
+    frame_shift = xp.arange(nf, dtype=nlist.dtype, device=dev) * (
         nall if not use_loc_mapping else nloc
     )
     shifted_nlist = nlist + frame_shift[:, xp.newaxis, xp.newaxis]
@@ -1357,8 +1361,8 @@ def get_graph_index(  # noqa: ANN201
     n2a_index = n2a_index[a_nlist_mask_3d]
 
     # edge(ij) to angle(ijk) index_select; angle(ijk) to edge(ij) aggregate
-    edge_id = xp.arange(n_edge, dtype=nlist.dtype)
-    edge_index = xp.zeros((nf, nloc, nnei), dtype=nlist.dtype)
+    edge_id = xp.arange(n_edge, dtype=nlist.dtype, device=dev)
+    edge_index = xp.zeros((nf, nloc, nnei), dtype=nlist.dtype, device=dev)
     edge_index = xp_setitem_at(edge_index, xp.astype(nlist_mask, xp.bool), edge_id)
     # only cut a_nnei neighbors, to avoid nnei x nnei
     edge_index = edge_index[:, :, :a_nnei]

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 
-from deepmd.dpmodel.descriptor.se_e2_a import DescrptSeA as DescrptSeADP
+from deepmd.dpmodel.descriptor.dpa2 import DescrptDPA2 as DescrptDPA2DP
 from deepmd.pt_expt.common import (
     torch_module,
 )
@@ -9,8 +9,7 @@ from deepmd.pt_expt.descriptor.base_descriptor import (
 )
 
 
-@BaseDescriptor.register("se_e2_a")
-@BaseDescriptor.register("se_a")
+@BaseDescriptor.register("dpa2")
 @torch_module
-class DescrptSeA(DescrptSeADP):
+class DescrptDPA2(DescrptDPA2DP):
     pass
