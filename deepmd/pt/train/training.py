@@ -195,6 +195,7 @@ class Trainer:
                 "lr_adjust_coeff": params.get("lr_adjust_coeff", 0.2),
                 "muon_2d_only": params.get("muon_2d_only", True),
                 "min_2d_dim": params.get("min_2d_dim", 1),
+                "flash_muon": params.get("flash_muon", True),
             }
             return opt_type, opt_param
 
@@ -798,6 +799,7 @@ class Trainer:
                 lr_adjust_coeff=float(self.opt_param["lr_adjust_coeff"]),
                 muon_2d_only=bool(self.opt_param["muon_2d_only"]),
                 min_2d_dim=int(self.opt_param["min_2d_dim"]),
+                flash_muon=bool(self.opt_param["flash_muon"]),
             )
             self._load_optimizer_state(optimizer_state_dict)
             self.scheduler = torch.optim.lr_scheduler.LambdaLR(
